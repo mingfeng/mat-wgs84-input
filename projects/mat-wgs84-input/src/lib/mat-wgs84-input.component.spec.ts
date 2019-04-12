@@ -1,6 +1,7 @@
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { MatWgs84InputComponent } from './mat-wgs84-input.component';
+import { ReactiveFormsModule } from '@angular/forms';
 
 describe('MatWgs84InputComponent', () => {
   let component: MatWgs84InputComponent;
@@ -8,9 +9,9 @@ describe('MatWgs84InputComponent', () => {
 
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      declarations: [ MatWgs84InputComponent ]
-    })
-    .compileComponents();
+      declarations: [MatWgs84InputComponent],
+      imports: [ReactiveFormsModule]
+    }).compileComponents();
   }));
 
   beforeEach(() => {
@@ -21,5 +22,10 @@ describe('MatWgs84InputComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should display coordinate in sexagesimal correctly', () => {
+    component.value = -77.508333;
+    fixture.detectChanges();
   });
 });

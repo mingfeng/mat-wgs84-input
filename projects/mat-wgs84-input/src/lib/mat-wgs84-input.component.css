@@ -1,0 +1,24 @@
+.coordinate-input-container {
+  display: flex;
+}
+
+.degrees-input,
+.minutes-input,
+.seconds-input {
+  border: none;
+  background: none;
+  padding: 0;
+  outline: none;
+  font: inherit;
+  text-align: center;
+  width: 33.3%;
+}
+
+.coordinate-symbol {
+  opacity: 0;
+  transition: opacity 200ms;
+}
+
+:host.floating-label .coordinate-symbol {
+  opacity: 1;
+}
