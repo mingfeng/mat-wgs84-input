@@ -17,6 +17,14 @@
     "lib": [
       "es2018",
       "dom"
-    ]
+    ],
+    "paths": {
+      "mat-wgs84-input": [
+        "dist/mat-wgs84-input"
+      ],
+      "mat-wgs84-input/*": [
+        "dist/mat-wgs84-input/*"
+      ]
+    }
   }
 }
