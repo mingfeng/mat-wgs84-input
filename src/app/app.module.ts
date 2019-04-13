@@ -1,8 +1,9 @@
-import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-
-import { AppComponent } from './app.component';
+import { MatFormFieldModule } from '@angular/material';
+import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MatWgs84InputModule } from 'projects/mat-wgs84-input/src/public-api';
+import { AppComponent } from './app.component';
 
 @NgModule({
   declarations: [
@@ -10,7 +11,9 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
   ],
   imports: [
     BrowserModule,
-    BrowserAnimationsModule
+    BrowserAnimationsModule,
+    MatFormFieldModule,
+    MatWgs84InputModule
   ],
   providers: [],
   bootstrap: [AppComponent]
