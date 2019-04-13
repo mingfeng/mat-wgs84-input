@@ -5,4 +5,7 @@
   <span class="coordinate-symbol">'</span>
   <input type="number" class="seconds-input" formControlName="seconds">
   <span class="coordinate-symbol">"</span>
+  <select class="direction-select" formControlName="direction">
+    <option *ngFor="let direction of directions" [value]="direction">{{ direction }}</option>
+  </select>
 </div>

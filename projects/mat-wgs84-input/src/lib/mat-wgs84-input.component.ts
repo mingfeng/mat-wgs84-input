@@ -1,9 +1,11 @@
 import { FocusMonitor } from '@angular/cdk/a11y';
-import { coerceBooleanProperty } from '@angular/cdk/coercion';
+import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
 import { Component, ElementRef, Input, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { MatFormFieldControl } from '@angular/material';
 import { Subject } from 'rxjs';
+
+type CoordinateType = 'latitude' | 'longitude';
 
 @Component({
   selector: 'lib-mat-wgs84-input',
@@ -27,11 +29,12 @@ export class MatWgs84InputComponent implements MatFormFieldControl<number>, OnDe
   controlType = 'mat-wgs84-input';
   id = `mat-wgs84-input-${MatWgs84InputComponent.nextId++}`;
   describedBy = '';
-  decimalPlaces = 6;
+  decimalPlaces = 3;
+  directions = ['N', 'S'];
 
   get empty() {
-    const { degrees, minutes, seconds } = this.parts.value;
-    return !degrees && !minutes && !seconds;
+    const { degrees, minutes, seconds, direction } = this.parts.value;
+    return !degrees && !minutes && !seconds && !direction;
   }
 
   get shouldLabelFloat() {
@@ -71,29 +74,45 @@ export class MatWgs84InputComponent implements MatFormFieldControl<number>, OnDe
 
   @Input()
   get value(): number | null {
-    const { degrees, minutes, seconds } = this.parts.value;
-    return degrees + minutes / 60 + seconds / 3600;
+    const { degrees, minutes, seconds, direction } = this.parts.value;
+    const val = degrees + minutes / 60 + seconds / 3600;
+    return direction === 'N' || direction === 'E' ? val : -val;
   }
   set value(val: number | null) {
+    val = coerceNumberProperty(val);
     if (val === null) {
-      this.parts.setValue({ degrees: null, minutes: null, seconds: null });
+      this.parts.setValue({ degrees: null, minutes: null, seconds: null, direction: null });
     } else {
-      const factor = Math.pow(10, this.decimalPlaces);
-      const fullDegrees = Math.round(val * factor) / factor;
-      const degrees = Math.round(fullDegrees);
+      const direction = val > 0 ? this.directions[0] : this.directions[1];
+      const degreeFactor = Math.pow(10, this.decimalPlaces + 4);
+      const secondFactor = Math.pow(10, this.decimalPlaces);
+      const fullDegrees = Math.round(Math.abs(val) * degreeFactor) / degreeFactor;
+      const degrees = Math.floor(fullDegrees);
       const fullMinutes = (fullDegrees % 1) * 60;
-      const minutes = Math.round(fullMinutes);
-      const seconds = (fullMinutes % 1) * 60;
-      this.parts.setValue({ degrees, minutes, seconds });
+      const minutes = Math.floor(fullMinutes);
+      const seconds = Math.round((fullMinutes % 1) * 60 * secondFactor) / secondFactor;
+      this.parts.setValue({ degrees, minutes, seconds, direction});
     }
     this.stateChanges.next();
   }
+
+  @Input()
+  get type(): CoordinateType | null {
+    return this._type;
+  }
+  set type(value: CoordinateType | null) {
+    this._type = value;
+    this.directions = value === 'longitude' ? ['E', 'W'] : ['N', 'S'];
+    this.stateChanges.next();
+  }
+  private _type: CoordinateType = 'latitude';
 
   constructor(formBuilder: FormBuilder, private focusMonitor: FocusMonitor, private elRef: ElementRef<HTMLElement>) {
     this.parts = formBuilder.group({
       degrees: null,
       minutes: null,
-      seconds: null
+      seconds: null,
+      direction: null,
     });
 
     focusMonitor.monitor(elRef, true).subscribe(origin => {
@@ -112,7 +131,8 @@ export class MatWgs84InputComponent implements MatFormFieldControl<number>, OnDe
   }
 
   onContainerClick(event: MouseEvent) {
-    if ((event.target as Element).tagName.toLowerCase() !== 'input') {
+    const tag = (event.target as Element).tagName.toLowerCase();
+    if (tag !== 'input' && tag !== 'select') {
       this.elRef.nativeElement.querySelector('input').focus();
     }
   }

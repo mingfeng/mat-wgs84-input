@@ -11,7 +11,16 @@
   outline: none;
   font: inherit;
   text-align: center;
-  width: 33.3%;
+  width: 25%;
+}
+
+.direction-select {
+  opacity: 0;
+  transition: opacity 200ms;
+  background: transparent;
+  border: none;
+  outline: none;
+  width: 25%;
 }
 
 .coordinate-symbol {
@@ -19,6 +28,7 @@
   transition: opacity 200ms;
 }
 
-:host.floating-label .coordinate-symbol {
+:host.floating-label .coordinate-symbol,
+:host.floating-label .direction-select {
   opacity: 1;
 }
