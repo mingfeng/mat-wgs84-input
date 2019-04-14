@@ -7,8 +7,9 @@ import { Subject } from 'rxjs';
 
 type CoordinateType = 'latitude' | 'longitude';
 
+/* tslint:disable:component-selector */
 @Component({
-  selector: 'lib-mat-wgs84-input',
+  selector: 'mat-wgs84-input',
   templateUrl: 'mat-wgs84-input.component.html',
   styleUrls: ['mat-wgs84-input.component.css'],
   providers: [{ provide: MatFormFieldControl, useExisting: MatWgs84InputComponent }],
