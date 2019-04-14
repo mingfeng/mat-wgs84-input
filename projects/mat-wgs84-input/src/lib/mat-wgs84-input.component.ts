@@ -1,9 +1,9 @@
 import { FocusMonitor } from '@angular/cdk/a11y';
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import { Component, ElementRef, Input, OnDestroy } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { Component, ElementRef, Input, OnDestroy, forwardRef, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatFormFieldControl } from '@angular/material';
-import { Subject } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 
 type CoordinateType = 'latitude' | 'longitude';
 
@@ -12,14 +12,21 @@ type CoordinateType = 'latitude' | 'longitude';
   selector: 'mat-wgs84-input',
   templateUrl: 'mat-wgs84-input.component.html',
   styleUrls: ['mat-wgs84-input.component.css'],
-  providers: [{ provide: MatFormFieldControl, useExisting: MatWgs84InputComponent }],
+  providers: [
+    { provide: MatFormFieldControl, useExisting: MatWgs84InputComponent },
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => MatWgs84InputComponent),
+      multi: true
+    }
+  ],
   host: {
     '[class.floating-label]': 'shouldLabelFloat',
     '[id]': 'id',
     '[attr.aria-describedby]': 'describedBy'
   }
 })
-export class MatWgs84InputComponent implements MatFormFieldControl<number>, OnDestroy {
+export class MatWgs84InputComponent implements ControlValueAccessor, MatFormFieldControl<number>, OnDestroy, OnInit {
   static nextId = 0;
 
   parts: FormGroup;
@@ -30,12 +37,12 @@ export class MatWgs84InputComponent implements MatFormFieldControl<number>, OnDe
   controlType = 'mat-wgs84-input';
   id = `mat-wgs84-input-${MatWgs84InputComponent.nextId++}`;
   describedBy = '';
-  decimalPlaces = 3;
+  precision = 7;
   directions = ['N', 'S'];
 
   get empty() {
-    const { degrees, minutes, seconds, direction } = this.parts.value;
-    return !degrees && !minutes && !seconds && !direction;
+    const { degrees, minutes, seconds } = this.parts.value;
+    return degrees === null && minutes === null && seconds === null;
   }
 
   get shouldLabelFloat() {
@@ -75,25 +82,31 @@ export class MatWgs84InputComponent implements MatFormFieldControl<number>, OnDe
 
   @Input()
   get value(): number | null {
+    if (this.empty) {
+      return null;
+    }
+
     const { degrees, minutes, seconds, direction } = this.parts.value;
-    const val = degrees + minutes / 60 + seconds / 3600;
-    return direction === 'N' || direction === 'E' ? val : -val;
+    const degreeFactor = Math.pow(10, this.precision);
+    const val = Math.round((degrees + minutes / 60 + seconds / 3600) * degreeFactor) / degreeFactor;
+    return direction === 'S' || direction === 'W' ? -val : val;
   }
   set value(val: number | null) {
-    val = coerceNumberProperty(val);
     if (val === null) {
       this.parts.setValue({ degrees: null, minutes: null, seconds: null, direction: null });
     } else {
+      val = coerceNumberProperty(val);
       const direction = val > 0 ? this.directions[0] : this.directions[1];
-      const degreeFactor = Math.pow(10, this.decimalPlaces + 4);
-      const secondFactor = Math.pow(10, this.decimalPlaces);
+      const degreeFactor = Math.pow(10, this.precision);
+      const secondFactor = Math.pow(10, this.precision - 4);
       const fullDegrees = Math.round(Math.abs(val) * degreeFactor) / degreeFactor;
       const degrees = Math.floor(fullDegrees);
       const fullMinutes = (fullDegrees % 1) * 60;
       const minutes = Math.floor(fullMinutes);
       const seconds = Math.round((fullMinutes % 1) * 60 * secondFactor) / secondFactor;
-      this.parts.setValue({ degrees, minutes, seconds, direction});
+      this.parts.setValue({ degrees, minutes, seconds, direction });
     }
+    this._onChange(val);
     this.stateChanges.next();
   }
 
@@ -108,12 +121,17 @@ export class MatWgs84InputComponent implements MatFormFieldControl<number>, OnDe
   }
   private _type: CoordinateType = 'latitude';
 
+  private changeSubscription: Subscription;
+
+  _onChange = (value: number) => {};
+  _onTouched = () => {};
+
   constructor(formBuilder: FormBuilder, private focusMonitor: FocusMonitor, private elRef: ElementRef<HTMLElement>) {
     this.parts = formBuilder.group({
       degrees: null,
       minutes: null,
       seconds: null,
-      direction: null,
+      direction: null
     });
 
     focusMonitor.monitor(elRef, true).subscribe(origin => {
@@ -122,8 +140,15 @@ export class MatWgs84InputComponent implements MatFormFieldControl<number>, OnDe
     });
   }
 
+  ngOnInit() {
+    this.changeSubscription = this.parts.valueChanges.subscribe(() => {
+      this._onChange(this.value);
+    });
+  }
+
   ngOnDestroy() {
     this.stateChanges.complete();
+    this.changeSubscription.unsubscribe();
     this.focusMonitor.stopMonitoring(this.elRef);
   }
 
@@ -136,5 +161,21 @@ export class MatWgs84InputComponent implements MatFormFieldControl<number>, OnDe
     if (tag !== 'input' && tag !== 'select') {
       this.elRef.nativeElement.querySelector('input').focus();
     }
+  }
+
+  writeValue(value: any) {
+    this.value = value;
+  }
+
+  registerOnChange(fn: (value: number) => void) {
+    this._onChange = fn;
+  }
+
+  registerOnTouched(fn: any) {
+    this._onTouched = fn;
+  }
+
+  setDisabledState(isDisabled: boolean) {
+    this.disabled = isDisabled;
   }
 }
