@@ -4,3 +4,4 @@
 
 export * from './lib/mat-wgs84-input.component';
 export * from './lib/mat-wgs84-input.module';
+export * from './lib/validators';
