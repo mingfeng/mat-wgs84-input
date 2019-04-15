@@ -34,7 +34,7 @@ describe('MatWgs84InputComponent', () => {
     const directionSelect = fixture.debugElement.query(By.css('.direction-select'));
     expect(degreesInput.nativeElement.value).toEqual('24');
     expect(minutesInput.nativeElement.value).toEqual('7');
-    expect(secondsInput.nativeElement.value).toEqual('24.45');
+    expect(secondsInput.nativeElement.value).toEqual('24.444');
     expect(directionSelect.nativeElement.value).toEqual('S');
   });
 
@@ -48,7 +48,7 @@ describe('MatWgs84InputComponent', () => {
     const directionSelect = fixture.debugElement.query(By.css('.direction-select'));
     expect(degreesInput.nativeElement.value).toEqual('12');
     expect(minutesInput.nativeElement.value).toEqual('45');
-    expect(secondsInput.nativeElement.value).toEqual('55.56');
+    expect(secondsInput.nativeElement.value).toEqual('55.556');
     expect(directionSelect.nativeElement.value).toEqual('E');
   });
 });

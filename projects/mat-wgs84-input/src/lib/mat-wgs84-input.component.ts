@@ -1,11 +1,11 @@
 import { FocusMonitor } from '@angular/cdk/a11y';
 import { coerceBooleanProperty, coerceNumberProperty } from '@angular/cdk/coercion';
-import { Component, ElementRef, Input, OnDestroy, forwardRef, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { Component, ElementRef, forwardRef, Input, OnDestroy, OnInit } from '@angular/core';
+import { ControlValueAccessor, FormBuilder, FormGroup, NG_VALUE_ACCESSOR, Validators } from '@angular/forms';
 import { MatFormFieldControl } from '@angular/material';
 import { Subject, Subscription } from 'rxjs';
 
-type CoordinateType = 'latitude' | 'longitude';
+export type CoordinateType = 'latitude' | 'longitude';
 
 /* tslint:disable:component-selector */
 @Component({
@@ -37,8 +37,7 @@ export class MatWgs84InputComponent implements ControlValueAccessor, MatFormFiel
   controlType = 'mat-wgs84-input';
   id = `mat-wgs84-input-${MatWgs84InputComponent.nextId++}`;
   describedBy = '';
-  precision = 7;
-  directions = ['N', 'S'];
+  precision = 7; // coordinate value precision
 
   get empty() {
     const { degrees, minutes, seconds } = this.parts.value;
@@ -106,7 +105,6 @@ export class MatWgs84InputComponent implements ControlValueAccessor, MatFormFiel
       const seconds = Math.round((fullMinutes % 1) * 60 * secondFactor) / secondFactor;
       this.parts.setValue({ degrees, minutes, seconds, direction });
     }
-    this._onChange(val);
     this.stateChanges.next();
   }
 
@@ -116,24 +114,28 @@ export class MatWgs84InputComponent implements ControlValueAccessor, MatFormFiel
   }
   set type(value: CoordinateType | null) {
     this._type = value;
-    this.directions = value === 'longitude' ? ['E', 'W'] : ['N', 'S'];
     this.stateChanges.next();
   }
   private _type: CoordinateType = 'latitude';
+
+  get directions() {
+    return this.type === 'longitude' ? ['E', 'W'] : ['N', 'S'];
+  }
+
+  get maxDegrees(): number {
+    return this.type === 'latitude' ? 90 : 180;
+  }
 
   private changeSubscription: Subscription;
 
   _onChange = (value: number) => {};
   _onTouched = () => {};
 
-  constructor(formBuilder: FormBuilder, private focusMonitor: FocusMonitor, private elRef: ElementRef<HTMLElement>) {
-    this.parts = formBuilder.group({
-      degrees: null,
-      minutes: null,
-      seconds: null,
-      direction: null
-    });
-
+  constructor(
+    private formBuilder: FormBuilder,
+    private focusMonitor: FocusMonitor,
+    private elRef: ElementRef<HTMLElement>
+  ) {
     focusMonitor.monitor(elRef, true).subscribe(origin => {
       this.focused = !!origin;
       this.stateChanges.next();
@@ -141,8 +143,16 @@ export class MatWgs84InputComponent implements ControlValueAccessor, MatFormFiel
   }
 
   ngOnInit() {
+    this.parts = this.formBuilder.group({
+      degrees: [null, [Validators.min(0), Validators.max(this.maxDegrees)]],
+      minutes: [null, [Validators.min(0), Validators.max(60)]],
+      seconds: [null, [Validators.min(0), Validators.max(60)]],
+      direction: null
+    });
+
     this.changeSubscription = this.parts.valueChanges.subscribe(() => {
-      this._onChange(this.value);
+      this.errorState = this.parts.invalid;
+      this._onChange(this.parts.valid ? this.value : NaN);
     });
   }
 

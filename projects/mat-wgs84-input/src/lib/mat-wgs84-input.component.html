@@ -1,9 +1,9 @@
 <div [formGroup]="parts" class="coordinate-input-container">
-  <input type="number" class="degrees-input" formControlName="degrees">
+  <input type="number" class="degrees-input" min="0" max="{{ maxDegrees }}" formControlName="degrees">
   <span class="coordinate-symbol">°</span>
-  <input type="number" class="minutes-input" formControlName="minutes">
+  <input type="number" class="minutes-input" min="0" max="60" formControlName="minutes">
   <span class="coordinate-symbol">'</span>
-  <input type="number" class="seconds-input" formControlName="seconds">
+  <input type="number" class="seconds-input" min="0" max="60" formControlName="seconds">
   <span class="coordinate-symbol">"</span>
   <select class="direction-select" formControlName="direction">
     <option *ngFor="let direction of directions" [value]="direction">{{ direction }}</option>
