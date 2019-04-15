@@ -1,9 +1,10 @@
 import { NgModule } from '@angular/core';
-import { MatFormFieldModule } from '@angular/material';
+import { ReactiveFormsModule } from '@angular/forms';
+import { MatFormFieldModule, MatInputModule } from '@angular/material';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MatWgs84InputModule } from 'projects/mat-wgs84-input/src/public-api';
 import { AppComponent } from './app.component';
+import { MatWgs84InputModule } from 'projects/mat-wgs84-input/src/public-api';
 
 @NgModule({
   declarations: [
@@ -12,7 +13,9 @@ import { AppComponent } from './app.component';
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
+    ReactiveFormsModule,
     MatFormFieldModule,
+    MatInputModule,
     MatWgs84InputModule
   ],
   providers: [],

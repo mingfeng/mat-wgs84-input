@@ -1,3 +1,13 @@
-<mat-form-field>
-  <lib-mat-wgs84-input placeholder="Coordinate" required></lib-mat-wgs84-input>
-</mat-form-field>
+<form class="example-form" [formGroup]="form">
+  <mat-form-field>
+    <mat-wgs84-input placeholder="Latitude" type="latitude" formControlName="latitude" required></mat-wgs84-input>
+    <mat-error *ngIf="latitude.invalid">{{ latitudeErrorMessage }}</mat-error>
+  </mat-form-field>
+  <mat-form-field>
+    <mat-wgs84-input placeholder="Longitude" type="longitude" formControlName="longitude" required></mat-wgs84-input>
+    <mat-error *ngIf="longitude.invalid">{{ longitudeErrorMessage }}</mat-error>
+  </mat-form-field>
+  <h4>Form control values</h4>
+  <p>Latitude: {{ latitude.value }}</p>
+  <p>Longitude: {{ longitude.value }}</p>
+</form>
