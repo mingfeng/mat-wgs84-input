@@ -1,24 +1,44 @@
 # MatWgs84Input
 
-This library was generated with [Angular CLI](https://github.com/angular/angular-cli) version 7.2.0.
+`<mat-wgs84-input>` is a form control that allows users to enter latitude/longitude in degrees, minutes, seconds and direction. It is meant to be used inside of a `<mat-form-field>` element, and act similarly as other form controls.
 
-## Code scaffolding
+## How to use
 
-Run `ng generate component component-name --project mat-wgs84-input` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module --project mat-wgs84-input`.
-> Note: Don't forget to add `--project mat-wgs84-input` or else it will be added to the default project in your `angular.json` file. 
+Install `mat-wgs84-input` in your project:
 
-## Build
+    npm install --save mat-wgs84-input
 
-Run `ng build mat-wgs84-input` to build the project. The build artifacts will be stored in the `dist/` directory.
+Import `MatWgs84InputModule` in your app module:
 
-## Publishing
+```typescript
+import { NgModule } from '@angular/core';
+import { MatFormFieldModule } from '@angular/material';
+import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MatWgs84InputModule } from 'mat-wgs84-input';
+import { AppComponent } from './app.component';
 
-After building your library with `ng build mat-wgs84-input`, go to the dist folder `cd dist/mat-wgs84-input` and run `npm publish`.
+@NgModule({
+  declarations: [
+    AppComponent
+  ],
+  imports: [
+    BrowserModule,
+    BrowserAnimationsModule,
+    MatFormFieldModule,
+    MatWgs84InputModule
+  ],
+  providers: [],
+  bootstrap: [AppComponent]
+})
+export class AppModule { }
+```
 
-## Running unit tests
+Use component in template:
 
-Run `ng test mat-wgs84-input` to execute the unit tests via [Karma](https://karma-runner.github.io).
+```html
+<mat-form-field>
+  <mat-wgs84-input placeholder="Latitude" type='latitude' [formControl]="latitude"></mat-wgs84-input>
+</mat-form-field>
 
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+```
