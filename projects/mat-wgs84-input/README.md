@@ -2,6 +2,10 @@
 
 `<mat-wgs84-input>` is a form control that allows users to enter latitude/longitude in degrees, minutes, seconds and direction. It is meant to be used inside of a `<mat-form-field>` element, and act similarly as other form controls.
 
+# Demo
+
+[Demo](https://mingfeng.github.io/wgs84-input/)
+
 ## How to use
 
 Install `mat-wgs84-input` in your project:
