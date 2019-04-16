@@ -1,6 +1,8 @@
 {
   "name": "mat-wgs84-input",
-  "version": "0.1.2",
+  "version": "0.1.3",
+  "repository": "https://github.com/mingfeng/wgs84-input",
+  "license": "MIT",
   "keywords": [
     "angular",
     "material design",
