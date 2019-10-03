@@ -4,7 +4,7 @@
 
 # Demo
 
-[Demo](https://mingfeng.github.io/wgs84-input/)
+[Demo](https://mingfeng.github.io/mat-wgs84-input/)
 
 ## How to use
 
